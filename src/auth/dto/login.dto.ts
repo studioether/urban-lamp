@@ -1,4 +1,4 @@
-import {IsEmail, IsString, IsNotEmpty} from "class-validator"
+import {IsEmail, IsNotEmpty, IsStrongPassword} from "class-validator"
 
 
 export class LoginDto {
@@ -6,7 +6,7 @@ export class LoginDto {
     @IsEmail()
     email: string
 
-    @IsString()
+    @IsStrongPassword()
     @IsNotEmpty()
     password: string
 }
