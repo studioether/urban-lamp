@@ -9,5 +9,5 @@ export class CreatePostDto{
     @IsNotEmpty()
     readonly postDate: Date
 
-
+    //join with comments table
 }
