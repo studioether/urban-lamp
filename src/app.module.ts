@@ -9,14 +9,17 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from './common/middleware/logger/logger.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 
-import config from 'ormconfig';
-import { User } from './user/user.entity';
+// import config from 'ormconfig';
+// import { User } from './user/user.entity';
 import { DataSource } from 'typeorm';
+import { dataSourceOptions } from 'db/data-source';
+import { BookmarksModule } from './bookmarks/bookmarks.module';
+import { SeedModule } from './seed/seed.module';
 
 
 
 @Module({
-  imports: [PostModule, UserModule, AuthModule, ReviewModule, LoggerModule, TypeOrmModule.forRoot(config)],
+  imports: [PostModule, UserModule, AuthModule, ReviewModule, LoggerModule, TypeOrmModule.forRoot(dataSourceOptions), BookmarksModule, SeedModule],
   controllers: [AppController],
   providers: [AppService],
 })
