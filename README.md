@@ -5,6 +5,9 @@ After adding your changes, push your branch as an upstream with:
 then create a new pull request to be reviewed and approved by the parent account.
 
 
+Don't for get to change to the main branch in your local clone and pull the new code updates on the project
+
+
 ## Installation
 
 ```bash
