@@ -23,12 +23,17 @@ export class UserService {
     
     
     //user signup
-    async createUser(createUserDto: CreateUserDto): Promise<User> {
+    async createUser(createUserDto: CreateUserDto): Promise<User> { //Data Transfer Object
         const salt = await bcrypt.genSalt()
 
         createUserDto.password = await bcrypt.hash(createUserDto.password, salt)
         const user = await this.userRepo.save(createUserDto)
         delete user.password
         return user
+    }
+
+
+    findAll() {
+        return "found all users"
     }
 }
