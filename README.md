@@ -15,6 +15,12 @@ For Instance: oh/orion/implement-bookmarking-feature
 Don't for get to change to the main branch in your local clone and pull the new code updates on the project
 
 
+## This is the staging branch
+This is where all code will be tested before moving to the production branch.
+make sure to make your pull requests to this branch first!!!
+
+
+
 ## Installation
 
 ```bash
