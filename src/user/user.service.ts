@@ -1,19 +1,28 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { User } from './user.entity';
+// import { User } from './user.entity';
 import * as bcrypt from 'bcrypt'
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+// import { InjectRepository } from '@nestjs/typeorm';
+// import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createuser.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { Prisma, User} from '@prisma/client';
+
 
 @Injectable()
 export class UserService {
     constructor(
-        @InjectRepository(User)
-        private userRepo: Repository<User>
+        // @InjectRepository(User)
+    //   private userRepo: Repository<User>,
+      
+      private prisma: PrismaService
     ){}
 
     async findOne(data: Partial<User>): Promise<User>{
-        const user = await this.userRepo.findOneBy({email: data.email})
+        const user = await this.prisma.user.findUnique({
+            where: {
+                email: data.email
+            }
+        })
         if (!user) {
             throw new UnauthorizedException("user couldn't be found!!")
         }
@@ -27,7 +36,9 @@ export class UserService {
         const salt = await bcrypt.genSalt()
 
         createUserDto.password = await bcrypt.hash(createUserDto.password, salt)
-        const user = await this.userRepo.save(createUserDto)
+        const user = await this.prisma.user.create({
+            data: createUserDto
+        })
         delete user.password
         return user
     }
@@ -36,4 +47,7 @@ export class UserService {
     findAll() {
         return "found all users"
     }
+
+
+    async updateProfile () {}
 }
