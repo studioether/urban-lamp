@@ -14,33 +14,28 @@ import { ApiTags, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
-  @Post()
-  create(@Body() createCommentDto: CreateCommentDto) {
-    return
-    // return this.commentsService.create(createCommentDto);
-  }
+  // @Post()
+  // create(@Body() createCommentDto: CreateCommentDto) {
+  //   return
+  // }
 
-  @Get()
-  findAll() {
-    return
-    // return this.commentsService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return
+  // }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return
-    // return this.commentsService.findOne(+id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return
+  // }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return
-    // return this.commentsService.update(+id, updateCommentDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
+  //   return
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return
-    // return this.commentsService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return
+  // }
 }

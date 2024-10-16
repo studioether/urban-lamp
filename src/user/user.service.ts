@@ -1,12 +1,13 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 // import { User } from './user.entity';
 import * as bcrypt from 'bcrypt'
 // import { InjectRepository } from '@nestjs/typeorm';
 // import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createuser.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { User} from '@prisma/client';
+import { User } from '@prisma/client';
 import { UpdateUserDto } from './dto/updateuser.dto';
+import { UserEntity } from './entities/user.entity';
 
 
 @Injectable()
@@ -14,7 +15,6 @@ export class UserService {
     constructor(
         // @InjectRepository(User)
     //   private userRepo: Repository<User>,
-      
       private prisma: PrismaService
     ){}
 
@@ -51,11 +51,17 @@ export class UserService {
         const salt = await bcrypt.genSalt()
 
         createUserDto.password = await bcrypt.hash(createUserDto.password, salt)
-        const user = await this.prisma.user.create({
-            data: createUserDto
-        })
-        delete user.password
-        return user
+        try {
+             const user = await this.prisma.user.create({
+                data: createUserDto
+            })
+            delete user.password
+            return user
+        } catch (error) {
+            console.log(error)
+            throw new BadRequestException("User could not be created")
+        }
+       
     }
 
 

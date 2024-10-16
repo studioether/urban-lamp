@@ -16,14 +16,14 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { PrismaModule } from './prisma/prisma.module';
 import { CommentsModule } from './comments/comments.module';
 import { CurrentUser } from './common/middleware/currentuser.middleware';
-
+import { JwtService } from '@nestjs/jwt';
 
 
 
 @Module({
   imports: [UserModule, AuthModule, ReviewModule, LoggerModule, /*TypeOrmModule.forRoot(dataSourceOptions),  SeedModule,*/ PrismaModule, CommentsModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, JwtService],
 })
 export class AppModule implements NestModule {
   constructor() {}

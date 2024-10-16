@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateReviewtDto } from './dto/review.dto';
 import { Review } from '@prisma/client';
@@ -53,6 +53,9 @@ export class ReviewService {
         const review = await this.prisma.review.findUnique({
             where: {
                 id: reviewId
+            },
+            include: {
+                author: true
             }
         })
 
@@ -63,5 +66,68 @@ export class ReviewService {
     async deleteReview(reviewId){
         return await this.prisma.review.delete({where: {id: reviewId}})
     }
+
+
+    async addUpvote(reviewId: number, userId: number): Promise<Review> {
+        const review = await this.prisma.review.findUnique({where: {id: reviewId}})
+        if (!review) {
+            throw new NotFoundException(`Review with id ${reviewId} not found`)
+        }
+
+        return this.prisma.review.update({
+            where: {
+                id: reviewId
+            },
+            data: {
+                upvotes: { increment: 1 },
+                upvotedBy: {
+                    connect: {
+                        id: userId
+                    }
+                }   
+            }
+        })
+    }
+
+
+    async removeUpvote(reviewId: number, userId: number): Promise<Review> {
+        const review = await this.prisma.review.findUnique({
+            where: {
+                id: reviewId
+            }
+        })
+
+        if (!review) {
+            throw new NotFoundException(`Review with id ${reviewId} not found`)
+        }
+
+        return this.prisma.review.update({
+            where: {
+                id: reviewId
+            },
+            data: {
+                upvotes: { decrement: 1 },
+                upvotedBy: {disconnect: {id: userId}}
+            }
+        })
+    }
     
+
+    //TODO: this should be further optimized with websocket!!!
+    async getUpvoteStatus(reviewId: number, userId: number) {
+        const review = this.prisma.review.findUnique({
+            where: {
+                id: reviewId
+            },
+            include: {
+                upvotedBy: {
+                    where: {
+                        id: userId
+                    }
+                }
+            }
+        })
+
+        return review?.upvotedBy.length > 0
+    }
 }

@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Comments, Prisma, User } from '@prisma/client'
+import { Comments } from '@prisma/client';
 
 @Injectable()
 export class CommentsService {
@@ -10,23 +10,56 @@ export class CommentsService {
     private prisma: PrismaService
   ) { }
   
-  create(createCommentDto: CreateCommentDto) {
-    return 'This action adds a new comment';
+  async createComment(createCommentDto: CreateCommentDto): Promise<Comments> {
+    const newComment = await this.prisma.comments.create({
+      data: createCommentDto
+    })
+
+    return newComment
   }
 
   findAll() {
     return `This action returns all comments`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} comment`;
+  findOneComment(id: number) {
+    return this.prisma.comments.findUnique({
+      where: {
+        id: id
+      }
+    })
   }
 
-  update(id: number, updateCommentDto: UpdateCommentDto) {
-    return `This action updates a #${id} comment`;
+
+  findCommentByReviewId(reviewId: number): Promise<Comments[]>{
+    return this.prisma.comments.findMany({
+      where: {
+        reviewId
+      },
+      include: { //not user if I should actuall have this there I'll have to check.
+        "review": true,
+        "author": true
+      }
+    })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} comment`;
+  // async updateComment(id: number, updateCommentDto: UpdateCommentDto): Promise<Comments> {
+  //   const updatedComment = await this.prisma.comments.update({
+  //     where: {
+  //       id: id
+  //     },
+  //     data: updateCommentDto
+  //   })
+
+  //   return updatedComment
+  // }
+
+  async removeComment(id: number): Promise<Comments> {
+    try {
+      const deletedComment = await this.prisma.comments.delete({where: {id: id}})
+      return deletedComment
+    } catch (error) {
+      throw new NotFoundException(`comment with ${id} not found`)
+    }
   }
 }
