@@ -15,20 +15,18 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 // import { SeedModule } from './seed/seed.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { CommentsModule } from './comments/comments.module';
-import { CurrentUser } from './common/middleware/currentuser.middleware';
-import { JwtService } from '@nestjs/jwt';
+
 
 
 
 @Module({
   imports: [UserModule, AuthModule, ReviewModule, LoggerModule, /*TypeOrmModule.forRoot(dataSourceOptions),  SeedModule,*/ PrismaModule, CommentsModule],
   controllers: [AppController],
-  providers: [AppService, JwtService],
+  providers: [AppService],
 })
 export class AppModule implements NestModule {
   constructor() {}
   configure(consumer: MiddlewareConsumer){
     consumer.apply(LoggerMiddleware).forRoutes()
-    consumer.apply(CurrentUser).forRoutes('*')
   }
 }
