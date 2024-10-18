@@ -24,21 +24,24 @@ model User{
  //single user to many posts
  reviews  Review[] @relation(name: "UserPosts")
  upvotedReviews Review[] @relation("UserUpvotedReviews")
+ downvotedReviews Review[] @relation("UserDownvotedReviews")
  responses Comments[]
- bookmarks  Review[] @relation(name: "UserBookmarks")
+ bookmarks  Review[] @relation("UserReviewBookmarks")
  createdAt    DateTime @default(now())
 }
 
 model Review{
   id  Int @id @default(autoincrement())
+  title String @db.Text @default("")
   content   String
   author  User?  @relation(name: "UserPosts", fields: [authorId], references: [id])
   authorId  Int?
-  bookmarked  User? @relation(name: "UserBookmarks", fields: [bookmarkedByUser], references: [id])
-  bookmarkedByUser  Int?
+  bookmarks  Int @default(0)
+  bookmarkedBy  User[] @relation("UserReviewBookmarks")
   upvotes   Int @default(0)
   downvotes   Int @default(0)
   upvotedBy User[] @relation("UserUpvotedReviews")
+  downvotedBy User[] @relation("UserDownvotedReviews")
   comments    Comments[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { PrismaClientExceptionFilter } from './prisma-client-exception/prisma-client-exception.filter';
+import { ConfigService } from '@nestjs/config';
 
 
 
@@ -14,6 +15,7 @@ async function bootstrap() {
    }))
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   //* swagger setup
+  const configService = app.get(ConfigService)
   const config = new DocumentBuilder()
     .setTitle('urban-lamp')
     .setDescription('The Urban Lamp API description')
@@ -38,6 +40,6 @@ async function bootstrap() {
 
   app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter))
   
-  await app.listen(3000);
+  await app.listen(configService.get<number>('port'));
 }
 bootstrap();

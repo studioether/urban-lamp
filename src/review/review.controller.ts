@@ -10,7 +10,7 @@ import { CreateReviewtDto } from './dto/review.dto';
 import { UpdateReviewDto } from './dto/updatereview.dto';
 import { CreateCommentDto } from 'src/comments/dto/create-comment.dto';
 import { JwtAuthGuard } from 'src/guards/jwt.guard';
-import { Request } from 'express';
+// import { Request } from 'express';
 import { CommentEntity } from 'src/comments/entities/comment.entity';
 
 @Controller('review')
@@ -23,6 +23,7 @@ export class ReviewController {
 
     @Get()
     @HttpCode(HttpStatus.OK)
+    @UseGuards(JwtAuthGuard)
     @ApiOkResponse({type: ReviewEntity, isArray: true})
     async feed(): Promise<Review[]> { //TODO:reset to find all where userId == user.id
         const reviews = await this.reviewService.findAll()
@@ -33,6 +34,7 @@ export class ReviewController {
 
     @Get(':id')
     @HttpCode(HttpStatus.OK)
+    @UseGuards(JwtAuthGuard)
     @ApiOkResponse({type: ReviewEntity})
     async findOne(@Param('id', ParseIntPipe) id:number):Promise<Review> {
         const review = await this.reviewService.findOne(id)
@@ -43,77 +45,118 @@ export class ReviewController {
         return new ReviewEntity(review)
     }
 
-    @Get('user/:id')
-    @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({type: ReviewEntity, isArray: true})
-    async findReviewsByUser(@Param('id', ParseIntPipe) id: number): Promise<Review[]> {
-        const reviews = await this.reviewService.findAllByUser(id)
-        return reviews.map((review) => new ReviewEntity(review));
-    }
-
     @Get(':id/comments')
     @HttpCode(HttpStatus.OK)
+    @UseGuards(JwtAuthGuard)
     @ApiOkResponse({type: CommentEntity})
     async getComments(@Param('id', ParseIntPipe) reviewId: number) {
         return await this.commentService.findCommentByReviewId(reviewId) //* returns a comment
     }
 
-    @Get("id/upvote-status")
+    @Get(":id/upvote-status")
     @HttpCode(HttpStatus.OK)
     @UseGuards(JwtAuthGuard)
     @ApiOkResponse({type: ReviewEntity})
-    async getUpvoteStatus(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
-        const userId = req.user['id']  //! assuming user Id is attached to the request, instances are liable to change
+    async getUpvoteStatus(@Param('id', ParseIntPipe) id: number, @Req() request) {
+        const userId =  request.user.userId
         return this.reviewService.getUpvoteStatus(id, userId)
     }
 
-    @Post()
+    @Get(":id/downvote-status")
     @HttpCode(HttpStatus.OK)
+    @UseGuards(JwtAuthGuard)
+    @ApiOkResponse({type: ReviewEntity})
+    async getDownvoteStatus(@Param('id', ParseIntPipe) id: number, @Req() request) {
+        const userId = request.user.userId
+        return this.reviewService.getDowvoteStatus(id, userId)
+    }
+
+    @Get(":id/bookmark-status")
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(JwtAuthGuard)
+    @ApiOkResponse({type: ReviewEntity})
+    async getBookmarkStatus(@Param('id', ParseIntPipe) id: number, @Req() request) {
+        const userId = request.user.userId
+        return this.reviewService.getBookmarkStatus(id, userId)
+    }
+
+    @Post("new")
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(JwtAuthGuard)
     @ApiCreatedResponse({type: ReviewEntity})
-    async createReview(@Body() createReviewDto: CreateReviewtDto): Promise<Review> {
-        return new ReviewEntity( await this.reviewService.createReview(createReviewDto))
+    async createReview(@Body() createReviewDto: CreateReviewtDto, @Req() request): Promise<Review> {
+        const userId = request.user.userId
+        return new ReviewEntity( await this.reviewService.createReview(createReviewDto, userId))
     }
 
 
     @Post(':id/comments')
     @HttpCode(HttpStatus.OK)
+    @UseGuards(JwtAuthGuard)
     @ApiCreatedResponse({ type: ReviewEntity })
-    async addComment(@Param('id', ParseIntPipe) reviewId: number, @Body() createCommentDto: CreateCommentDto) {
-        const review = await this.reviewService.findOne(reviewId)
+    async addComment(@Param('id', ParseIntPipe) id: number, @Body() createCommentDto: CreateCommentDto, @Req() request) {
+        const userId = request.user.userId
+        const review = await this.reviewService.findOne(id)
+
         if (!review) {
-            throw new NotFoundException(`Review with id ${reviewId} not found`)
+            throw new NotFoundException(`Review with id ${id} not found`)
         }
 
-        return this.commentService.createComment(createCommentDto)
+        return this.commentService.createComment(createCommentDto, userId, id)
     }
 
     @Post(':id/upvote')
     @HttpCode(HttpStatus.OK)
     @UseGuards(JwtAuthGuard)
     @ApiCreatedResponse({type: ReviewEntity})
-    async upvoteReview(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
-        const userId = req.user['id'] //! assuming user Id is attached to the request, instances are liable to change
-        return new ReviewEntity(await this.reviewService.addUpvote(id, userId))
+    async upvoteReview(@Param('id', ParseIntPipe) id: number, @Req() request) {
+        const userId = request.user.userId 
+        return new ReviewEntity(await this.reviewService.toggleUpvote(id, userId))
     }
 
-    @Patch(":id")
+    @Post(':id/downvote')
     @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({type: ReviewEntity})
-    async updateReview(@Param('id', ParseIntPipe) id: number, @Body() updateReviewDto: UpdateReviewDto): Promise<Review> {
-        return new ReviewEntity( await this.reviewService.updateReview(id, updateReviewDto))
+    @UseGuards(JwtAuthGuard)
+    @ApiCreatedResponse({type: ReviewEntity})
+    async downvoteReview(@Param('id', ParseIntPipe) id: number, @Req() request) {
+        const userId = request.user.userId
+        return new ReviewEntity(await this.reviewService.toggleDownvote(id, userId))
     }
 
-    @Delete(":id")
+    @Post(':id/bookmark')
     @HttpCode(HttpStatus.OK)
-    @ApiOkResponse({type: ReviewEntity})
-    async removeReview(@Param('id', ParseIntPipe) id: number) {
-        return new ReviewEntity( await this.reviewService.deleteReview(id))
+    @UseGuards(JwtAuthGuard)
+    @ApiCreatedResponse({ type: ReviewEntity })
+    async toggleBookmark(@Param('id', ParseIntPipe) id: number, @Req() request) {
+        const userId = request.user.userId
+        return new ReviewEntity(await this.reviewService.toggleBookmarkReview(id, userId))
     }
 
-    @Delete(":id/comments/:commentId")
+    @Patch(':id')
     @HttpCode(HttpStatus.OK)
+    @UseGuards(JwtAuthGuard)
     @ApiOkResponse({type: ReviewEntity})
-    async deleteComment(@Param("id", ParseIntPipe) id: number, @Param("commentId", ParseIntPipe) commentId: number) {
+    async updateReview(@Param('id', ParseIntPipe) id: number, @Body() updateReviewDto: UpdateReviewDto, @Req() request): Promise<Review> {
+        const userId = request.user.userId
+        return new ReviewEntity( await this.reviewService.updateReview(id, updateReviewDto, userId))
+    }
+
+    @Delete(':id')
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(JwtAuthGuard)
+    @ApiOkResponse({type: ReviewEntity})
+    async removeReview(@Param('id', ParseIntPipe) id: number, @Req() request) {
+        const userId = request.user.userId
+        return new ReviewEntity( await this.reviewService.deleteReview(id, userId))
+    }
+
+    @Delete(':id/comments/:commentId')
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(JwtAuthGuard)
+    @ApiOkResponse({type: ReviewEntity})
+    async deleteComment(@Param("id", ParseIntPipe) id: number, @Param("commentId", ParseIntPipe) commentId: number, @Req() request) {
+        const userId = request.user.userId
+        
         const review = await this.reviewService.findOne(id)
         if (!review) {
             throw new NotFoundException()
@@ -128,15 +171,6 @@ export class ReviewController {
             throw new ForbiddenException("Comment does not belong to the specified post")
         }
 
-        return this.commentService.removeComment(commentId) //* returns comment
-    }
-
-    @Delete(":id/upvote")
-    @HttpCode(HttpStatus.OK)
-    @UseGuards(JwtAuthGuard)
-    @ApiOkResponse({type: ReviewEntity})
-    async removeUpvote(@Param("id", ParseIntPipe) id: number, @Req() req: Request) {
-        const userId = req.user['id']  //! assuming user Id is attached to the request, instances are liable to change
-        return new ReviewEntity( await this.reviewService.removeUpvote(id, userId))
+        return this.commentService.removeComment(commentId, userId) //* returns comment
     }
 }

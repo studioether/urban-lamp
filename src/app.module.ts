@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 import { ReviewModule } from './review/review.module';
 // import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from './common/middleware/logger/logger.module';
@@ -15,12 +16,17 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 // import { SeedModule } from './seed/seed.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { CommentsModule } from './comments/comments.module';
+import configuration from './config/configuration';
 
 
 
 
 @Module({
-  imports: [UserModule, AuthModule, ReviewModule, LoggerModule, /*TypeOrmModule.forRoot(dataSourceOptions),  SeedModule,*/ PrismaModule, CommentsModule],
+  imports: [ConfigModule.forRoot({
+    load: [configuration],
+    isGlobal: true,
+    envFilePath: ['.development.env', '.production.env']
+  }), UserModule, AuthModule, ReviewModule, LoggerModule, /*TypeOrmModule.forRoot(dataSourceOptions),  SeedModule,*/ PrismaModule, CommentsModule],
   controllers: [AppController],
   providers: [AppService],
 })

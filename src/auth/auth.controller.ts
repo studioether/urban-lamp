@@ -1,4 +1,5 @@
-import { Body, Controller, Post, HttpStatus, HttpCode } from '@nestjs/common';
+import { Get, Req, Body, Controller, Post, HttpStatus, HttpCode, UseGuards, Res } from '@nestjs/common';
+import { GoogleOAuthGuard } from 'src/guards/google-oauth.guard';
 import { CreateUserDto } from 'src/user/dto/createuser.dto';
 import { UserService } from 'src/user/user.service';
 import { User } from '@prisma/client';
@@ -28,6 +29,21 @@ export class AuthController {
     @ApiCreatedResponse({type: AuthEntity})
     async login(@Body() loginDto: LoginDto) {
         return await this.authService.login(loginDto);
+    }
+
+
+    @Get()
+    @UseGuards(GoogleOAuthGuard)
+    async googleAuth(@Req() req) { }
+    
+
+    @Get('google-redirect')
+    @UseGuards(GoogleOAuthGuard)
+    async googleAuthRedirect(@Req() req, @Res() res) {
+        const {accessToken} = await this.authService.googleLogin(req)
+        res.cookie('access_token', accessToken, {httpOnly: true})
+        res.redirect('/dashboard')
+        // return this.authService.googleLogin(req)
     }
 }
 

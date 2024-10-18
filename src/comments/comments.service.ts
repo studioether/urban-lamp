@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -10,7 +10,21 @@ export class CommentsService {
     private prisma: PrismaService
   ) { }
   
-  async createComment(createCommentDto: CreateCommentDto): Promise<Comments> {
+  async createComment(createCommentDto: CreateCommentDto, userId: number, reviewId: number): Promise<Comments> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId
+      }
+    })
+
+    if (!user) {
+      throw new NotFoundException(`this user with id ${userId} doesn't exist`)
+    }
+
+    createCommentDto.reviewId = reviewId
+    createCommentDto.authorId = userId
+
+
     const newComment = await this.prisma.comments.create({
       data: createCommentDto
     })
@@ -54,7 +68,26 @@ export class CommentsService {
   //   return updatedComment
   // }
 
-  async removeComment(id: number): Promise<Comments> {
+  async removeComment(id: number, userId: number): Promise<Comments> {
+
+    const user = await this.prisma.user.findUnique({
+            where: {
+                id: userId
+            }
+        })
+
+        if (!user) {
+            throw new NotFoundException(`this user with id ${userId} doesn't exist`)
+    }
+    
+    const comment = await this.prisma.comments.findUnique({
+      where: {id}
+    })
+
+    if (comment.authorId !== user.id) {
+      throw new UnauthorizedException("You can't delete this comment!!!")
+    }
+
     try {
       const deletedComment = await this.prisma.comments.delete({where: {id: id}})
       return deletedComment

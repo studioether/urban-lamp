@@ -10,6 +10,9 @@ export class ReviewEntity implements Review {
     id: number
 
     @ApiProperty()
+    title: string
+
+    @ApiProperty()
     content: string
 
     @ApiProperty({required: false, nullable: true}) //*TODO: for now. change this to be required later on when all is fixed!!!
@@ -26,8 +29,12 @@ export class ReviewEntity implements Review {
         }
     }
 
-    @ApiProperty({required: false, nullable: true})
-    bookmarkedByUser: number | null;
+    @ApiProperty()
+    bookmarks: number
+    
+
+    @ApiProperty({isArray: true})
+    bookmarkedBy: []
 
     @ApiProperty()
     upvotes: number
@@ -37,6 +44,9 @@ export class ReviewEntity implements Review {
 
     @ApiProperty({required: false, isArray: true})
     upvotedBy: []
+
+    @ApiProperty({required: false, isArray: true})
+    downvotedBy: []
 
     @ApiProperty({isArray: true})
     comments: []

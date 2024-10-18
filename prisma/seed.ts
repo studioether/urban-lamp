@@ -52,7 +52,6 @@ async function main() {
         create: {
             content: faker.lorem.paragraph(),
             authorId: userOne.id,
-            bookmarkedByUser: userTwo.id
         }
     })
 
@@ -64,7 +63,6 @@ async function main() {
         create: {
             content: faker.lorem.paragraph(),
             authorId: userTwo.id,
-            bookmarkedByUser: userOne.id
         }
     })
 
