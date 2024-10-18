@@ -25,7 +25,7 @@ import configuration from './config/configuration';
   imports: [ConfigModule.forRoot({
     load: [configuration],
     isGlobal: true,
-    envFilePath: ['.development.env', '.production.env']
+    envFilePath: ['env.development', 'env.production']
   }), UserModule, AuthModule, ReviewModule, LoggerModule, /*TypeOrmModule.forRoot(dataSourceOptions),  SeedModule,*/ PrismaModule, CommentsModule],
   controllers: [AppController],
   providers: [AppService],

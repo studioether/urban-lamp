@@ -1,4 +1,4 @@
 export default () => ({
-    port: parseInt(process.env.PORT),
-    secret: process.env.SECRET
+    port: process.env.PORT ? parseInt(process.env.PORT, 10) : 3000,
+    secret: process.env.SECRET,
 })

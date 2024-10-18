@@ -50,6 +50,7 @@ async function main() {
         },
         update: {},
         create: {
+            title: faker.word.words(),
             content: faker.lorem.paragraph(),
             authorId: userOne.id,
         }
@@ -61,6 +62,7 @@ async function main() {
         },
         update: {},
         create: {
+            title: faker.word.words(),
             content: faker.lorem.paragraph(),
             authorId: userTwo.id,
         }
