@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url = env("DATABASE_URL")
+  url = env("POSTGRES_PRISMA_URL")
+  // directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+
+model User{
+ id   Int @id @default(autoincrement())
+ username   String @unique()
+ email  String @unique()
+ password   String @unique()
+ //single user to many posts
+ reviews  Review[] @relation(name: "UserPosts")
+ upvotedReviews Review[] @relation("UserUpvotedReviews")
+ downvotedReviews Review[] @relation("UserDownvotedReviews")
+ responses Comments[]
+ bookmarks  Review[] @relation("UserReviewBookmarks")
+ createdAt    DateTime @default(now())
+}
+
+model Review{
+  id  Int @id @default(autoincrement())
+  title String @db.Text @default("")
+  content   String
+  author  User?  @relation(name: "UserPosts", fields: [authorId], references: [id])
+  authorId  Int?
+  bookmarks  Int @default(0)
+  bookmarkedBy  User[] @relation("UserReviewBookmarks")
+  upvotes   Int @default(0)
+  downvotes   Int @default(0)
+  upvotedBy User[] @relation("UserUpvotedReviews")
+  downvotedBy User[] @relation("UserDownvotedReviews")
+  comments    Comments[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Comments{
+  id Int @id @default(autoincrement())
+  comment String
+  review Review? @relation(fields: [reviewId], references: [id])
+  reviewId Int
+  author  User?  @relation(fields: [authorId], references: [id])
+  authorId  Int?
+  createdAt    DateTime @default(now())
+}
+
