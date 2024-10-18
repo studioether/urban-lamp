@@ -8,7 +8,6 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt-strategy';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
-import { GoogleAuthStrategy } from './google.strategy';
 
 
 @Module({
@@ -18,7 +17,7 @@ import { GoogleAuthStrategy } from './google.strategy';
       expiresIn: '1d'
     }
   }), PrismaModule],
-  providers: [AuthService, JwtStrategy, GoogleAuthStrategy],
+  providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
   exports: [AuthService]
 })

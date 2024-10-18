@@ -38,43 +38,4 @@ export class AuthService {
         }
     }
 
-    async findOrCreateUser(profile: any) {
-        const user = await this.prisma.user.findUnique({
-            where: {
-                email: profile.email
-            }
-        })
-
-        if (user) {
-            return user
-        }
-
-        return this.prisma.user.create({
-            data: {
-                email: profile.email,
-                username: `${profile.givenName} ${profile.familyName}`
-            }
-        })
-    }
-
-    async googleLogin(req) {
-        if (!req.user) {
-            return 'No user from google';
-        }
-
-        const user = await this.findOrCreateUser(req.user)
-        const payload: PayloadType = {
-            email: user.email,
-            userId: user.id
-        }
-
-        return {
-            accessToken: this.jwtService.sign(payload)
-        }
-
-        // return {
-        //     messgae: 'User information from google',
-        //     user: req.user
-        // }
-    }
 }
