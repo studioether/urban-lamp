@@ -5,7 +5,7 @@ After adding your changes, push your branch as an upstream with:
 `git push --set-upstream origin <your branch name>`
 then create a new pull request to be reviewed and approved by the parent account.
 
-Remeber to change your local clone to the main branch and pull the latest update of the base branch so you have the latest code before you make new changes.
+Remeber to change your local clone to the staging branch and pull the latest update of the staging branch so you have the latest code before you make new changes.
 
 
 ## branching convention
@@ -15,10 +15,10 @@ For Instance: oh/orion/implement-bookmarking-feature
 Don't for get to change to the main branch in your local clone and pull the new code updates on the project
 
 
-## This is the staging branch
-This is where all code will be tested before moving to the production branch.
-make sure to make your pull requests to this branch first!!!
 
+=======
+## After making Changes!!!
+after you've pushed you changes to to your branch, make a pull request to the staging branch not the production(main) branch.
 
 
 ## Installation
