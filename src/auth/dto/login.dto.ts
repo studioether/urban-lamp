@@ -12,5 +12,5 @@ export class LoginDto {
     @IsStrongPassword()
     @IsNotEmpty()
     @ApiProperty()
-    password: string
+    password?: string
 }

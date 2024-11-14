@@ -3,7 +3,8 @@ import { AppModule } from './app.module';
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { PrismaClientExceptionFilter } from './prisma-client-exception/prisma-client-exception.filter';
-import { ConfigService } from '@nestjs/config';
+// import { ConfigService } from '@nestjs/config';
+import { RefreshJwtAuthGuard } from './guards/refresh-auth.guard';
 
 
 
@@ -13,12 +14,13 @@ async function bootstrap() {
     whitelist: true,
     forbidNonWhitelisted: true
    }))
+  app.useGlobalGuards(new RefreshJwtAuthGuard(new Reflector()))
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   //* swagger setup
-  const configService = app.get(ConfigService)
+  // const configService = app.get(ConfigService)
   const config = new DocumentBuilder()
     .setTitle('urban-lamp')
-    .setDescription('The Urban Lamp API description')
+    .setDescription('The Urban Lamp API')
     .setVersion('0.1')
     .addBearerAuth(
       {
@@ -40,8 +42,8 @@ async function bootstrap() {
 
   app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter))
     
-  const port = configService.get<number>('port')
+  // const port = configService.get<number>('port')
   
-  await app.listen(port);
+  await app.listen(3001);
 }
 bootstrap();

@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Review} from "@prisma/client";
+import { Review } from "@prisma/client";
 import { UserEntity } from "src/user/entities/user.entity";
 
 
@@ -48,7 +48,7 @@ export class ReviewEntity implements Review {
     @ApiProperty({required: false, isArray: true})
     downvotedBy: []
 
-    @ApiProperty({isArray: true})
+    @ApiProperty({ isArray: true })
     comments: []
 
     @ApiProperty()

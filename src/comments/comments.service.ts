@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
-import { UpdateCommentDto } from './dto/update-comment.dto';
+// import { UpdateCommentDto } from './dto/update-comment.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Comments } from '@prisma/client';
 
@@ -21,12 +21,17 @@ export class CommentsService {
       throw new NotFoundException(`this user with id ${userId} doesn't exist`)
     }
 
-    createCommentDto.reviewId = reviewId
-    createCommentDto.authorId = userId
+    
+
+    const reviewData = {
+      comment: createCommentDto.comment,
+      reviewId,
+      authorId: userId
+    }
 
 
     const newComment = await this.prisma.comments.create({
-      data: createCommentDto
+      data: reviewData
     })
 
     return newComment

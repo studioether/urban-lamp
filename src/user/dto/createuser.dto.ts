@@ -1,7 +1,8 @@
-import { IsEmail, IsNotEmpty, IsString, IsStrongPassword, MinLength } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, MinLength } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateUserDto {
+    //TODO: add first and last name and profile avatarurl
     @IsString()
     @IsNotEmpty()
     @MinLength(3)

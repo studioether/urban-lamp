@@ -7,15 +7,14 @@ import { CreateUserDto } from './dto/createuser.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User, Review } from '@prisma/client';
 import { UpdateUserDto } from './dto/updateuser.dto';
+
 // import { UserEntity } from './entities/user.entity';
 
 
 @Injectable()
 export class UserService {
     constructor(
-        // @InjectRepository(User)
-    //   private userRepo: Repository<User>,
-      private prisma: PrismaService
+        private prisma: PrismaService
     ) { }
     
     async isUser(userId:number): Promise<User> {
@@ -32,6 +31,17 @@ export class UserService {
         }
     }
 
+    async updateHashedRefreshToken(userId: number, hashedRefreshToken: string) {
+        return await this.prisma.user.update({
+            where: {
+                id: userId
+            },
+            data: {
+                hashedRefreshToken
+            }
+        })
+    }
+
     async findOneAuth(data: Partial<User>): Promise<User>{
         const user = await this.prisma.user.findUnique({
             where: {
@@ -41,6 +51,20 @@ export class UserService {
         if (!user) {
             throw new UnauthorizedException("user couldn't be found!!")
         }
+
+        return user
+    }
+
+    async findByEmail(email: string): Promise<User>{
+        const user = await this.prisma.user.findUnique({
+            where: {
+                email
+            }
+        })
+
+        // if (!user) {
+        //     throw new UnauthorizedException("user doesn't exist!!!")
+        // }
 
         return user
     }
@@ -89,9 +113,9 @@ export class UserService {
                 data: createUserDto
             })
             delete user.password
+
             return user
         } catch (error) {
-            console.log(error)
             throw new BadRequestException("User could not be created")
         }
        
@@ -142,7 +166,7 @@ export class UserService {
 
 
     //get user's upvoted reviwes by user
-    async getUpvotedReviews(userId: number, skip: number = 0, take: number = 10): Promise<Review[]> {
+    async getUpvotedReviews(userId: number, /*skip: number = 0, take: number = 10*/): Promise<Review[]> {
         const user = await this.prisma.user.findUnique({
             where: {
                 id: userId
