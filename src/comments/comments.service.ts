@@ -21,12 +21,17 @@ export class CommentsService {
       throw new NotFoundException(`this user with id ${userId} doesn't exist`)
     }
 
-    createCommentDto.reviewId = reviewId
-    createCommentDto.authorId = userId
+    
+
+    const reviewData = {
+      comment: createCommentDto.comment,
+      reviewId,
+      authorId: userId
+    }
 
 
     const newComment = await this.prisma.comments.create({
-      data: createCommentDto
+      data: reviewData
     })
 
     return newComment

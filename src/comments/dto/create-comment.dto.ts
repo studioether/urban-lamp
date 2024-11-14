@@ -10,8 +10,8 @@ export class CreateCommentDto {
     comment: string
 
     @ApiProperty()
-    reviewId: number | null
+    reviewId?: number | null
 
     @ApiProperty()
-    authorId: number | null
+    authorId?: number | null
 }

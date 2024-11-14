@@ -20,5 +20,8 @@ export class UserEntity implements User{
     password: string
 
     @ApiProperty()
+    hashedRefreshToken: string;
+
+    @ApiProperty()
     createdAt: Date
 }
