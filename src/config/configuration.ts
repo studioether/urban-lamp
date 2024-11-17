@@ -7,7 +7,9 @@ const configuration: ConfigModuleOptions = {
     load: [() => ({
         database: {
             // url: process.env.DATABASE_URL
-            url: process.env.POSTGRES_PRISMA_URL
+            url: process.env.POSTGRES_PRISMA_URL,
+            directUrl: process.env.POSTGRES_URL_NON_POOLING,
+            token: process.env.POSTGRES_URL
         }
     })]
 }
