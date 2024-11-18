@@ -42,8 +42,10 @@ async function bootstrap() {
 
   app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter))
     
-  const port = configService.get<number>('port') || 4000
+  const port = configService.get<number>('port')
   
-  await app.listen(port);
+  await app.listen(port, () => {
+      console.log(`listening on port ${port}`)
+  });
 }
 bootstrap();
