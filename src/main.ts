@@ -5,6 +5,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { PrismaClientExceptionFilter } from './prisma-client-exception/prisma-client-exception.filter';
 import { ConfigService } from '@nestjs/config';
 import { RefreshJwtAuthGuard } from './guards/refresh-auth.guard';
+import { JwtAuthGuard } from './guards/jwt.guard';
 
 
 
@@ -14,6 +15,7 @@ async function bootstrap() {
     whitelist: true,
     forbidNonWhitelisted: true
    }))
+  // app.useGlobalGuards(new RefreshJwtAuthGuard(new Reflector()), new JwtAuthGuard(new Reflector()))
   app.useGlobalGuards(new RefreshJwtAuthGuard(new Reflector()))
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   //* swagger setup

@@ -39,10 +39,18 @@ export class AuthService {
         
         const {accessToken, refreshToken} = await this.generateTokens(user.id, user.email)
         const hashedRefreshToken = await argon2.hash(refreshToken)
+
         await this.userService.updateHashedRefreshToken(user.id, hashedRefreshToken)
         return {
-            accessToken,
-            refreshToken
+             user: {
+                    userId: user.id,
+                    username: user.username,
+                    email: user.email
+            },
+            backendTokens: {
+                accessToken,
+                refreshToken
+            }
         }
     }
 
@@ -61,11 +69,19 @@ export class AuthService {
             const hashedRefreshToken = await argon2.hash(refreshToken)
             await this.userService.updateHashedRefreshToken(user.id, hashedRefreshToken)
             return {
-                accessToken,
-                refreshToken
+                user: {
+                    userId: user.id,
+                    username: user.username,
+                    email: user.email
+                },
+                backendTokens: {
+                    accessToken,
+                    refreshToken
+                }
             }
+            
         }
-
+        
         const passwordMatched = await bcrypt.compare(
             loginDto.password,
             user.password
@@ -80,8 +96,15 @@ export class AuthService {
             const hashedRefreshToken = await argon2.hash(refreshToken)
             await this.userService.updateHashedRefreshToken(user.id, hashedRefreshToken)
             return {
+                 user: {
+                    userId: user.id,
+                    username: user.username,
+                    email: user.email
+            },
+            backendTokens: {
                 accessToken,
                 refreshToken
+            }
             }
             
         } else {
