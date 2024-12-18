@@ -1,4 +1,4 @@
-import {  Body, Controller, Post, HttpStatus, HttpCode, UseGuards, Get, Req, Res } from '@nestjs/common';
+import {  Body, Controller, Post, HttpStatus, HttpCode, UseGuards, Get, Req, Res, BadRequestException } from '@nestjs/common';
 import { CreateUserDto } from 'src/user/dto/createuser.dto';
 import { UserService } from 'src/user/user.service';
 // import { User } from '@prisma/client';
@@ -11,7 +11,7 @@ import { GoogleOAuthGuard } from 'src/guards/google-oauth.guard';
 import { Public } from 'src/decorators/public.decorator';
 import { RefreshJwtAuthGuard } from 'src/guards/refresh-auth.guard';
 // import { JwtAuthGuard } from 'src/guards/jwt.guard';
-import { LocalAuthGuard } from 'src/guards/local.gurad';
+import { LocalAuthGuard } from 'src/guards/local.guard';
 
 
 
@@ -22,9 +22,9 @@ export class AuthController {
     constructor(private readonly userService: UserService, private readonly authService: AuthService){}
 
     @Public()
-    @Post("signup")
     @HttpCode(HttpStatus.OK)
     @ApiCreatedResponse({ type: UserEntity })
+    @Post("signup")
     signup(
         @Body() userDto: CreateUserDto
     ){
@@ -32,22 +32,29 @@ export class AuthController {
     }
 
     @Public()
-    @HttpCode(HttpStatus.OK)
     @UseGuards(LocalAuthGuard)
+    @HttpCode(HttpStatus.OK)
     @ApiCreatedResponse({type: AuthEntity})
     @Post("login")
     async login(@Body() loginDto: LoginDto) {
         return await this.authService.login(loginDto);
     }
-
-    @Public()
+    
+    // @Public()
     @UseGuards(RefreshJwtAuthGuard)
-    @Post('refresh')
+    @HttpCode(HttpStatus.OK)
+    @Post("refresh")
     refreshToken(@Req() req) {
-        return this.authService.refreshToken(req.user.userId)
+        try {
+                const userId = req.user.userId
+                return this.authService.refreshToken(userId)
+        } catch (error) {
+            console.error(error.message)
+            throw new BadRequestException("couldn't get token")
+        }
     }
 
-
+    @Public()
     @Post("signout")
     signOut(@Req() req) {
         return this.authService.signOut(req.user.userId)
@@ -83,7 +90,7 @@ export class AuthController {
         }
         const response = await this.authService.login(loginDto)
         // res.redirect(`http://localhost:5173?token=${response.accessToken}`)
-        res.redirect(`http://localhost:5173?token=${response.refreshToken}`)
+        res.redirect(`http://localhost:3000/api/auth/google/callback?accessToken=${response.backendTokens.accessToken}&refreshToken=${response.backendTokens.refreshToken}`)
     }
 
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 // import { User } from './user.entity';
 import * as bcrypt from 'bcrypt'
 // import { InjectRepository } from '@nestjs/typeorm';
@@ -103,12 +103,20 @@ export class UserService {
     
     //user signup
     async createUser(createUserDto: CreateUserDto): Promise<User> { //Data Transfer Object
-        const salt = await bcrypt.genSalt()
+        
 
         //* add checker to check if username already exists?
+        // console.log("email", createUserDto.email)
+        const userExists = await this.findByEmail(createUserDto.email)
 
-        createUserDto.password = await bcrypt.hash(createUserDto.password, salt)
+        if (userExists !== null) {
+            throw new ConflictException("User Already Exits")
+        }
+        
         try {
+            const salt = await bcrypt.genSalt()
+
+            createUserDto.password = await bcrypt.hash(createUserDto.password, salt)
              const user = await this.prisma.user.create({
                 data: createUserDto
             })
@@ -116,7 +124,7 @@ export class UserService {
 
             return user
         } catch (error) {
-            throw new BadRequestException("User could not be created")
+            throw new BadRequestException("User could not be created", error)
         }
        
     }
